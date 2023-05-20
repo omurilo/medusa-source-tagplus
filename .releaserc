@@ -1,0 +1,41 @@
+{
+  "branches": [
+    "+([0-9])?(.{+([0-9]),x}).x",
+    "main",
+    {
+      "name": "next",
+      "channel": "next"
+    },
+    {
+      "name": "next-major",
+      "channel": "next"
+    },
+    {
+      "name": "beta",
+      "prerelease": true,
+      "channel": "beta"
+    },
+    {
+      "name": "alpha",
+      "prerelease": true,
+      "channel": "alpha"
+    }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": true,
+        "tarballDir": "dist"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": "dist/*.tgz"
+      }
+    ]
+  ]
+}

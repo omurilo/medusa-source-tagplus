@@ -5,3 +5,4 @@ tsconfig*
 .github
 *.tgz
 node_modules
+.releaserc
