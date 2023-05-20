@@ -10,8 +10,6 @@ type InjectedDependencies = {
 };
 
 class TagPlusCategoryService extends TransactionBaseService {
-	protected manager_: EntityManager;
-	protected transactionManager_: EntityManager;
 	protected tagplusClientService_: TagPlusClientService;
 	protected productCollectionService_: ProductCollectionService;
 

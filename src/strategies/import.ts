@@ -13,15 +13,15 @@ import TagPlusCategoryService from "../services/tagplus.category";
 import TagPlusProductService from "../services/tagplus.product";
 import TagPlusClientService from "../services/tagplus.client";
 
-interface TagPlusStore extends Store {
+export interface TagPlusStore extends Store {
 	metadata: {
 		tagplus?: {
 			accessToken?: string;
 			refreshToken?: string;
 			expiresAt?: number;
 			buildTime?: Date;
-		}
-	}
+		};
+	};
 }
 
 type InjectedDependencies = {
@@ -42,8 +42,6 @@ class ImportStrategy extends AbstractBatchJobStrategy {
 	protected batchJobService_: BatchJobService;
 	protected storeService_: StoreService;
 	protected tagplusClientService_: TagPlusClientService;
-	protected manager_: EntityManager;
-	protected transactionManager_: EntityManager;
 
 	protected tagplusCategoryService_: TagPlusCategoryService;
 	protected tagplusProductService_: TagPlusProductService;
@@ -78,6 +76,9 @@ class ImportStrategy extends AbstractBatchJobStrategy {
 	}
 
 	async processJob(batchJobId: string): Promise<void> {
+		let page = 1;
+		const perPage = 100;
+		let productsLength = 100;
 		const batchJob = await this.batchJobService_.retrieve(batchJobId);
 
 		let store: TagPlusStore;
@@ -94,47 +95,46 @@ class ImportStrategy extends AbstractBatchJobStrategy {
 
 		//retrieve categories
 		// const { data } = await this.tagplusClientService_.retrieveCategories(lastUpdatedTime);
-		var categories;
 		const getCategories = async () => {
-			categories = await this.tagplusClientService_.retrieveCategories(lastUpdatedTime);
+			const { data } = await this.tagplusClientService_.retrieveCategories();
+			return data;
 		};
 
-		await getCategories();
+		const categories = await getCategories();
 
 		// await categories.data.categories.map(async (category) => {
-		for await (let category of categories.data.categories) {
+		for await (let category of categories) {
 			await this.tagplusCategoryService_.create(
 				await this.tagplusClientService_.retrieveCategory(category.id)
 			);
 		}
 
-		if (categories.data.categories.length) {
-			this.logger_.info(
-				`${categories.data.categories.length} categories have been imported or updated successfully.`
-			);
+		if (categories.length) {
+			this.logger_.info(`${categories.length} categories have been imported or updated successfully.`);
 		} else {
 			this.logger_.info(`No categories have been imported or updated.`);
 		}
 
 		this.logger_.info("Importing products from TagPlus...");
 
-		//retrieve configurable products
-		const products = await this.tagplusClientService_.retrieveProducts();
+		do {
+			const products = await this.tagplusClientService_.retrieveProducts(page, perPage);
 
-		for (let product of products.data.products) {
-			const productData = await this.tagplusClientService_.retrieveProduct(product.id);
-			productData.data.product.images = await this.tagplusClientService_.retrieveImages(product.id);
+			for (let product of products.data) {
+				await this.tagplusProductService_.create(product);
+			}
 
-			await this.tagplusProductService_.create(productData);
-		}
+			if (products.data.length) {
+				this.logger_.info(
+					`${products.data.length} products have been imported or updated successfully.`
+				);
+			} else {
+				this.logger_.info(`No products have been imported or updated.`);
+			}
 
-		if (products.data.products.length) {
-			this.logger_.info(
-				`${products.data.products.length} products have been imported or updated successfully.`
-			);
-		} else {
-			this.logger_.info(`No products have been imported or updated.`);
-		}
+			productsLength = products.data.length;
+			page += 1;
+		} while (productsLength === perPage);
 
 		await this.updateBuildTime(store);
 	}
@@ -175,7 +175,7 @@ class ImportStrategy extends AbstractBatchJobStrategy {
 				tagplus: {
 					...(store.metadata?.tagplus ?? {}),
 					buildTime: new Date().toISOString(),
-				}
+				},
 			},
 		};
 
