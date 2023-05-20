@@ -5,6 +5,13 @@
   "author": "Murilo Alves <hi@omurilo.dev>",
   "license": "MIT",
   "main": "dist",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omurilo/medusa-source-tagplus.git"
+  },
+  "publishConfig": {
+    "@omurilo:registry": "https://npm.pkg.github.com"
+  },
   "keywords": [
     "medusa",
     "medusa-plugin",
