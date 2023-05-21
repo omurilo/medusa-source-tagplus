@@ -1,0 +1,47 @@
+ci: true
+debug: true
+dryRun: false
+branches:
+  - main
+  - release/**
+
+plugins:
+  - ["@semantic-release/commit-analyzer", {
+      releaseRules: [
+        {"type": "docs", "scope": "README", "release": "patch"},
+        {"type": "refactor", "release": "patch"},
+        {"type": "refactor", "scope": "core-*", "release": "minor"},
+        {"type": "refactor", "release": "patch"},
+        {"scope": "no-release", "release": false}
+      ]
+    }]
+  - "@semantic-release/release-notes-generator"
+  - "@semantic-release/changelog"
+  - ["@semantic-release/npm", {
+      "pkgRoot": "dist",
+    }]
+  - "@semantic-release/git"
+  - "@semantic-release/github"
+
+verifyConditions:
+  - "@semantic-release/npm"
+  - '@semantic-release/git'
+  - "@semantic-release/github"
+
+prepare:
+  - path: "@semantic-release/changelog"
+    changelogFile: "CHANGELOG.md"
+  - path: "@semantic-release/npm"
+  - path: "@semantic-release/git"
+    message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    assets: ['CHANGELOG.md', 'package.json', 'README.md']
+
+publish:
+  - path: "@semantic-release/npm"
+    assets: ["dist/**", "README.md", "package.json"]
+
+success:
+  - "@semantic-release/github"
+
+fail:
+  - "@semantic-release/github"
