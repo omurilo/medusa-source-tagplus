@@ -5,7 +5,7 @@ import axios, { AxiosInstance, AxiosResponse, Method } from "axios";
 import { EntityManager } from "typeorm";
 import { MedusaError } from "medusa-core-utils";
 import { TagPlusStore } from "../strategies/import";
-import { Categories, Category, Product, ProductImage, Products } from "./tagplus.types";
+import { Categories, Category, Product, ProductImage, Products } from "../utils/tagplus.types";
 
 type InjectedDependencies = {
 	manager: EntityManager;

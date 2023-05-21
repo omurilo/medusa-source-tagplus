@@ -13,10 +13,10 @@ import {
 	ShippingProfile,
 } from "@medusajs/medusa";
 import TagPlusClientService, { PluginOptions } from "./tagplus.client";
-import { type Product as TagPlusProduct } from "./tagplus.types";
+import { type Product as TagPlusProduct } from "../utils/tagplus.types";
 
 import { EntityManager } from "typeorm";
-import { Category } from "./tagplus.types";
+import { Category } from "../utils/tagplus.types";
 
 type InjectedDependencies = {
 	productService: ProductService;
