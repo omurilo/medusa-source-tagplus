@@ -1,6 +1,6 @@
 {
   "name": "medusa-source-tagplus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A plugin to integrate TagPlus as a source of products and categories to Medusa.js commerce",
   "author": "Murilo Alves <hi@omurilo.dev>",
   "license": "MIT",
